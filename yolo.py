@@ -24,26 +24,9 @@ def load_yolo():
 	colors = np.random.uniform(0, 255, size=(len(classes), 3))
 	return net, classes, colors, output_layers
 
-def load_image(img_path):
-	# image loading
-	img = cv2.imread(img_path)
-	img = cv2.resize(img, None, fx=0.4, fy=0.4)
-	height, width, channels = img.shape
-	return img, height, width, channels
-
-def start_webcam():
-	cap = cv2.VideoCapture(0)
-
-	return cap
 
 
-def display_blob(blob):
-	'''
-		Three images each for RED, GREEN, BLUE channel
-	'''
-	for b in blob:
-		for n, imgb in enumerate(b):
-			cv2.imshow(str(n), imgb)
+
 
 def detect_objects(img, net, outputLayers):
 	blob = cv2.dnn.blobFromImage(img, scalefactor=0.00392, size=(320, 320), mean=(0, 0, 0), swapRB=True, crop=False)
@@ -91,30 +74,8 @@ def draw_labels(boxes, confs, colors, class_ids, classes, img):
 	cv2.imshow("Image", img)
 
 
-def image_detect(img_path):
-	model, classes, colors, output_layers = load_yolo()
-	image, height, width, channels = load_image(img_path)
-	blob, outputs = detect_objects(image, model, output_layers)
-	boxes, confs, class_ids = get_box_dimensions(outputs, height, width)
-	draw_labels(boxes, confs, colors, class_ids, classes, image)
-	while True:
-		key = cv2.waitKey(1)
-		if key == 27:
-			break
 
-def webcam_detect():
-	model, classes, colors, output_layers = load_yolo()
-	cap = start_webcam()
-	while True:
-		_, frame = cap.read()
-		height, width, channels = frame.shape
-		blob, outputs = detect_objects(frame, model, output_layers)
-		boxes, confs, class_ids = get_box_dimensions(outputs, height, width)
-		draw_labels(boxes, confs, colors, class_ids, classes, frame)
-		key = cv2.waitKey(1)
-		if key == 27:
-			break
-	cap.release()
+
 
 
 def start_video(video_path):
@@ -137,20 +98,13 @@ if __name__ == '__main__':
 	webcam = args.webcam
 	video_play = args.play_video
 	image = args.image
-	if webcam:
-		if args.verbose:
-			print('---- Starting Web Cam object detection ----')
-		webcam_detect()
+	
 	if video_play:
 		video_path = args.video_path
 		if args.verbose:
 			print('Opening '+video_path+" .... ")
 		start_video(video_path)
-	if image:
-		image_path = args.image_path
-		if args.verbose:
-			print("Opening "+image_path+" .... ")
-		image_detect(image_path)
+	
 
 
 	cv2.destroyAllWindows()
